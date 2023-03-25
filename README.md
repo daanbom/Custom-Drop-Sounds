@@ -1,12 +1,12 @@
 # Custom Drop Sounds
-A Plugin to make getting a drop play a custom sound.
+A Plugin which plays custom sounds when you receive certain drops.
 
 ## Configuration
 Currently, there are a few options for custom sounds.
 
 You can have a custom sound for 5 tiers of drops. 
 You can customize how low/high the drop has to be for each tier.
-For example, you can pick to have "lowest" tier be between 50k and 250k.
+For example, you can pick to have the "lowest" tier be between 50k and 250k.
 
 There are custom sounds for all clue's available, currently they are all the same sound
 But you can replace them to have different individual sounds.
@@ -32,7 +32,7 @@ you would replace `pet_sound.wav` with a different .wav file *of the same name*
 ## Future Development
 Currently, the sound plays whenever it sees a new item on the floor.
 This means that if you drop an item from your inventory it will also play.
-There will be a check in the future where it comes from.
+I might improve on that in the future if people are interested.
 
 Also planning to add a Pokemon theme soundpack.
 
