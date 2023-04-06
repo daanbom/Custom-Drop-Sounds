@@ -2,7 +2,7 @@ package org.CustomDropsSounds;
 
 import net.runelite.client.config.*;
 
-@ConfigGroup("example")
+@ConfigGroup("CustomDropSounds")
 public interface CustomDropSoundsConfig extends Config
 {
 
