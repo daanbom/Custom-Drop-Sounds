@@ -28,11 +28,14 @@ import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.ItemStack;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.grounditems.GroundItemsConfig;
 import net.runelite.client.plugins.grounditems.GroundItemsPlugin;
+import net.runelite.client.plugins.loottracker.LootReceived;
+import net.runelite.http.api.loottracker.LootRecordType;
 import net.runelite.client.util.Text;
 
 
@@ -123,8 +126,22 @@ public class CustomDropSoundsPlugin extends Plugin
 	@Subscribe
 	public void onItemSpawned(ItemSpawned itemSpawned)
 	{
-		final TileItem item = itemSpawned.getItem();
-		final int id = item.getId();
+		TileItem item = itemSpawned.getItem();
+		this.handleItem(item.getId(), item.getQuantity());
+	}
+
+	@Subscribe
+	public void onLootReceived(LootReceived lootReceived) {
+		if (lootReceived.getType() != LootRecordType.EVENT && lootReceived.getType() != LootRecordType.PICKPOCKET) {
+			return;
+		}
+
+		for (ItemStack stack : lootReceived.getItems()) {
+			handleItem(stack.getId(), stack.getQuantity());
+		}
+	}
+
+	private void handleItem(int id, int quantity) {
 		final ItemComposition itemComposition = itemManager.getItemComposition(id);
 		final String name = itemComposition.getName().toLowerCase();
 
@@ -134,7 +151,6 @@ public class CustomDropSoundsPlugin extends Plugin
 			return;
 		}
 
-		final int quantity = item.getQuantity();
 		final int gePrice = itemManager.getItemPrice(id) * quantity;
 		final int haPrice = itemComposition.getHaPrice() * quantity;
 		final int value = getValueByMode(gePrice, haPrice);
@@ -181,8 +197,6 @@ public class CustomDropSoundsPlugin extends Plugin
 		{
 			playSound(HIGHEST_SOUND_FILE);
 		}
-
-
 	}
 
 	private void playSound(File f)
