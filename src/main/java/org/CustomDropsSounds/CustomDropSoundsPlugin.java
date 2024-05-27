@@ -20,9 +20,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.ItemComposition;
-import net.runelite.api.TileItem;
 import net.runelite.api.events.ChatMessage;
-import net.runelite.api.events.ItemSpawned;
 import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -35,7 +33,6 @@ import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.grounditems.GroundItemsConfig;
 import net.runelite.client.plugins.grounditems.GroundItemsPlugin;
 import net.runelite.client.plugins.loottracker.LootReceived;
-import net.runelite.http.api.loottracker.LootRecordType;
 import net.runelite.client.util.Text;
 
 
@@ -96,6 +93,9 @@ public class CustomDropSoundsPlugin extends Plugin
 			PET_SOUND_FILE
 	};
 	private List<String> highlightedItemsList = new CopyOnWriteArrayList<>();
+	private static final long CLIP_TIME_UNLOADED = -2;
+
+	private long lastClipTime = CLIP_TIME_UNLOADED;
 	private Clip clip = null;
 
 	@Override
@@ -124,18 +124,7 @@ public class CustomDropSoundsPlugin extends Plugin
 	}
 
 	@Subscribe
-	public void onItemSpawned(ItemSpawned itemSpawned)
-	{
-		TileItem item = itemSpawned.getItem();
-		this.handleItem(item.getId(), item.getQuantity());
-	}
-
-	@Subscribe
 	public void onLootReceived(LootReceived lootReceived) {
-		if (lootReceived.getType() != LootRecordType.EVENT && lootReceived.getType() != LootRecordType.PICKPOCKET) {
-			return;
-		}
-
 		for (ItemStack stack : lootReceived.getItems()) {
 			handleItem(stack.getId(), stack.getQuantity());
 		}
@@ -201,26 +190,27 @@ public class CustomDropSoundsPlugin extends Plugin
 
 	private void playSound(File f)
 	{
-		try
-		{
-			/* Leaving this removed for now. Calling this too many times causes client to hang.
-			if (clip != null)
+		long currentTime = System.currentTimeMillis();
+		if (clip == null || !clip.isOpen() || currentTime != lastClipTime) {
+			lastClipTime = currentTime;
+			try
 			{
-				clip.close();
-			}
-			 */
+				// making sure last clip closes so we don't get multiple instances
+				if (clip != null && clip.isOpen()) clip.close();
 
-			AudioInputStream is = AudioSystem.getAudioInputStream(f);
-			AudioFormat format = is.getFormat();
-			DataLine.Info info = new DataLine.Info(Clip.class, format);
-			clip = (Clip) AudioSystem.getLine(info);
-			clip.open(is);
-			setVolume(config.masterVolume());
-			clip.start();
-		}
-		catch (LineUnavailableException | UnsupportedAudioFileException | IOException e)
-		{
-			log.warn("Sound file error", e);
+				AudioInputStream is = AudioSystem.getAudioInputStream(f);
+				AudioFormat format = is.getFormat();
+				DataLine.Info info = new DataLine.Info(Clip.class, format);
+				clip = (Clip) AudioSystem.getLine(info);
+				clip.open(is);
+				setVolume(config.masterVolume());
+				clip.start();
+			}
+			catch (LineUnavailableException | UnsupportedAudioFileException | IOException e)
+			{
+				log.warn("Sound file error", e);
+				lastClipTime = CLIP_TIME_UNLOADED;
+			}
 		}
 	}
 
