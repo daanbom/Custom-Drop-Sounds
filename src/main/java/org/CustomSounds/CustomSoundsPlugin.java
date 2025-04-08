@@ -1,4 +1,4 @@
-package org.CustomDropsSounds;
+package org.CustomSounds;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provides;
 import java.io.File;
@@ -18,9 +18,10 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
-import net.runelite.api.ItemComposition;
+import net.runelite.api.*;
+import net.runelite.api.events.ActorDeath;
 import net.runelite.api.events.ChatMessage;
+import net.runelite.api.events.HitsplatApplied;
 import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -35,34 +36,40 @@ import net.runelite.client.plugins.grounditems.GroundItemsPlugin;
 import net.runelite.client.plugins.loottracker.LootReceived;
 import net.runelite.client.util.Text;
 
-
-
 @Slf4j
 @PluginDescriptor(
-		name = "Custom Drop Sounds"
+		name = "Custom Sounds",
+		description = "Play custom sound effects for item drops, pets, hits and more",
+		tags = {"sound", "effect", "item", "drop", "hit", "combat"}
 )
 @PluginDependency(GroundItemsPlugin.class)
-public class CustomDropSoundsPlugin extends Plugin
+public class CustomSoundsPlugin extends Plugin
 {
 	@Inject
-	private CustomDropSoundsConfig config;
+	private CustomSoundsConfig config;
 
 	@Provides
-	CustomDropSoundsConfig provideConfig(ConfigManager configManager)
+	CustomSoundsConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(CustomDropSoundsConfig.class);
+		return configManager.getConfig(CustomSoundsConfig.class);
 	}
 
 	@Inject
 	private GroundItemsConfig groundItemsConfig;
 
+
+	@Inject
+	private Client client;
 	@Inject
 	private ItemManager itemManager;
+
+	private static final String COLLOG = "New item added to your collection log";
 
 	private static final ImmutableList<String> PET_MESSAGES = ImmutableList.of("You have a funny feeling like you're being followed",
 			"You feel something weird sneaking into your backpack",
 			"You have a funny feeling like you would have been followed");
 	private static final File CUSTOM_SOUNDS_DIR = new File(RuneLite.RUNELITE_DIR.getPath() + File.separator + "custom-drop-sounds");
+
 	private static final File HIGHLIGHTED_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "highlighted_sound.wav");
 	private static final File BEGINNER_CLUE_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "beginner_clue_sound.wav");
 	private static final File EASY_CLUE_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "easy_clue_sound.wav");
@@ -77,6 +84,11 @@ public class CustomDropSoundsPlugin extends Plugin
 	private static final File HIGH_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "high_sound.wav");
 	private static final File HIGHEST_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "highest_sound.wav");
 	private static final File LOWEST_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "lowest_sound.wav");
+	private static final File COLLECTIONLOG_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "CollectionLog.wav");
+	private static final File DIED_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "Died.wav");
+
+	private static final File MAX_SOUND_FILE = new File(CUSTOM_SOUNDS_DIR, "Max.wav");
+
 	private static final File[] SOUND_FILES = new File[]{
 			HIGHLIGHTED_SOUND_FILE,
 			BEGINNER_CLUE_SOUND_FILE,
@@ -90,8 +102,13 @@ public class CustomDropSoundsPlugin extends Plugin
 			LOWEST_SOUND_FILE,
 			HIGH_SOUND_FILE,
 			HIGHEST_SOUND_FILE,
-			PET_SOUND_FILE
+			PET_SOUND_FILE,
+			MAX_SOUND_FILE,
+			COLLECTIONLOG_SOUND_FILE,
+			DIED_SOUND_FILE
 	};
+
+
 	private List<String> highlightedItemsList = new CopyOnWriteArrayList<>();
 	private static final long CLIP_TIME_UNLOADED = -2;
 
@@ -129,6 +146,24 @@ public class CustomDropSoundsPlugin extends Plugin
 			handleItem(stack.getId(), stack.getQuantity());
 		}
 	}
+
+	@Subscribe
+	public void onHitsplatApplied(HitsplatApplied event)
+	{
+		Actor actor = event.getActor();;
+		// Skip if actor is null
+		if (actor == null)
+		{
+			return;
+		}
+		if (config.maxHitBoolean() && event.getHitsplat().getHitsplatType()==HitsplatID.DAMAGE_MAX_ME){
+			playSound(MAX_SOUND_FILE);
+		}
+
+	}
+
+
+
 
 	private void handleItem(int id, int quantity) {
 		final ItemComposition itemComposition = itemManager.getItemComposition(id);
@@ -238,7 +273,7 @@ public class CustomDropSoundsPlugin extends Plugin
 				if (f.exists()) {
 					continue;
 				}
-				InputStream stream = CustomDropSoundsPlugin.class.getClassLoader().getResourceAsStream(f.getName());
+				InputStream stream = CustomSoundsPlugin.class.getClassLoader().getResourceAsStream(f.getName());
 				OutputStream out = new FileOutputStream(f);
 				byte[] buffer = new byte[8 * 1024];
 				int bytesRead;
@@ -251,6 +286,7 @@ public class CustomDropSoundsPlugin extends Plugin
 				log.debug(e + ": " + f);
 			}
 		}
+
 	}
 
 	private int getValueByMode(int gePrice, int haPrice)
@@ -266,6 +302,18 @@ public class CustomDropSoundsPlugin extends Plugin
 		}
 	}
 
+	@Subscribe
+	public void onActorDeath(ActorDeath actorDeath) {
+		if (actorDeath.getActor() != client.getLocalPlayer()){
+			return;
+		}
+		if (config.announceDeath()) {
+			playSound(DIED_SOUND_FILE);
+		}
+	}
+
+
+
 	private void updateHighlightedItemsList()
 	{
 		if (!groundItemsConfig.getHighlightItems().isEmpty())
@@ -275,6 +323,7 @@ public class CustomDropSoundsPlugin extends Plugin
 	}
 	@Subscribe
 	public void onChatMessage(ChatMessage event) {
+		String chatMessage = event.getMessage();
 		if (event.getType() != ChatMessageType.GAMEMESSAGE
 				&& event.getType() != ChatMessageType.SPAM
 				&& event.getType() != ChatMessageType.TRADE
@@ -282,12 +331,14 @@ public class CustomDropSoundsPlugin extends Plugin
 		{
 			return;
 		}
-
-		String chatMessage = event.getMessage();
-		if (config.petSound() && PET_MESSAGES.stream().anyMatch(chatMessage::contains))
+		if (config.announceCollectionLog() && COLLOG.contains(chatMessage)){
+			playSound(COLLECTIONLOG_SOUND_FILE);
+		}
+		else if (config.petSound() && PET_MESSAGES.stream().anyMatch(chatMessage::contains))
 		{
 			playSound(PET_SOUND_FILE);
 		}
+
 	}
 
 }

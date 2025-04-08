@@ -1,15 +1,15 @@
-package org.CustomDropsSounds;
+package org.CustomSounds;
 
 import net.runelite.client.config.*;
 
 @ConfigGroup("CustomDropSounds")
-public interface CustomDropSoundsConfig extends Config
+public interface CustomSoundsConfig extends Config
 {
 
 	@ConfigSection(
 			name = "Value drops",
 			description = "All the settings for drops",
-			position = 4
+			position = 7
 
 	)
 	String valueDrops = "valueDrops";
@@ -17,7 +17,7 @@ public interface CustomDropSoundsConfig extends Config
 	@ConfigSection(
 			name = "Clue drops",
 			description = "All the settings for drops",
-			position = 3
+			position = 6
 
 	)
 	String clueDrops = "clueDrops";
@@ -52,6 +52,34 @@ public interface CustomDropSoundsConfig extends Config
 	)
 	default boolean petSound()
 	{
+		return true;
+	}
+		@ConfigItem(
+			keyName = "maxHitBoolean",
+			name = "Maxhit",
+			description = "Enable/Disable Max Hit Sounds",
+			section = "hitsplatToggleSection",
+			position = 3
+	)
+	default boolean maxHitBoolean() {return true;}
+
+	@ConfigItem(
+			keyName = "announceDeath",
+			name = "Death sound",
+			description = "Enable/Disable Death Sound",
+			position = 4
+	)
+	default boolean announceDeath() {
+		return true;
+	}
+
+	@ConfigItem(
+			keyName = "announceCollectionLog",
+			name = "New collection log entry",
+			description = " This one relies on you having chat messages (included with the popup option) enabled in game settings!",
+			position = 5
+	)
+	default boolean announceCollectionLog() {
 		return true;
 	}
 
