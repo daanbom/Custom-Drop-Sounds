@@ -1,5 +1,5 @@
-# Custom Drop Sounds
-A Plugin which plays custom sounds when you receive certain drops.
+# Custom Sounds
+A Plugin which plays custom sounds when you receive certain drops, or do a certain action.
 
 ## Configuration
 Currently, there are a few options for custom sounds.
@@ -14,6 +14,8 @@ But you can replace them to have different individual sounds.
 In combination with the standard Runelite Ground Items plugin you can highlight items and use a custom sound for those drops.
 
 You can also use custom pet sounds.
+
+There are also custom sounds for collectionlog, death and max hits.
 
 Master volume is the global volume of the sound effects (0-100%)
 
@@ -30,11 +32,7 @@ you would replace `pet_sound.wav` with a different .wav file *of the same name*
 ![Readme Image.png](src%2Fmain%2Fresources%2FReadme%20Image.png)
 
 ## Future Development
-Currently, the sound plays whenever it sees a new item on the floor.
-This means that if you drop an item from your inventory it will also play.
-I might improve on that in the future if people are interested.
-
-Also planning to add a Pokemon theme soundpack.
+Currently not working on anymore, message me if you want something added.
 
 If you find any bugs please let me know either through GitHub or by messaging me on discord at el diab#9825
 
