@@ -3,20 +3,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Provides;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.inject.Inject;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.ActorDeath;
@@ -35,6 +28,7 @@ import net.runelite.client.plugins.grounditems.GroundItemsConfig;
 import net.runelite.client.plugins.grounditems.GroundItemsPlugin;
 import net.runelite.client.plugins.loottracker.LootReceived;
 import net.runelite.client.util.Text;
+
 
 @Slf4j
 @PluginDescriptor(
@@ -64,6 +58,7 @@ public class CustomSoundsPlugin extends Plugin
 	private ItemManager itemManager;
 
 	private static final String COLLOG = "New item added to your collection log";
+
 
 	private static final ImmutableList<String> PET_MESSAGES = ImmutableList.of("You have a funny feeling like you're being followed",
 			"You feel something weird sneaking into your backpack",
@@ -112,7 +107,8 @@ public class CustomSoundsPlugin extends Plugin
 	private List<String> highlightedItemsList = new CopyOnWriteArrayList<>();
 	private static final long CLIP_TIME_UNLOADED = -2;
 
-	private long lastClipTime = CLIP_TIME_UNLOADED;
+
+	private SoundManager soundManager;
 	private Clip clip = null;
 
 	@Override
@@ -120,13 +116,15 @@ public class CustomSoundsPlugin extends Plugin
 	{
 		initSoundFiles();
 		updateHighlightedItemsList();
+		soundManager = new SoundManager(config);
 	}
 
 	@Override
 	protected void shutDown()
 	{
-		clip.close();
-		clip = null;
+		if (soundManager != null) {
+			soundManager.shutdown();
+		}
 		highlightedItemsList = null;
 	}
 
@@ -225,28 +223,7 @@ public class CustomSoundsPlugin extends Plugin
 
 	private void playSound(File f)
 	{
-		long currentTime = System.currentTimeMillis();
-		if (clip == null || !clip.isOpen() || currentTime != lastClipTime) {
-			lastClipTime = currentTime;
-			try
-			{
-				// making sure last clip closes so we don't get multiple instances
-				if (clip != null && clip.isOpen()) clip.close();
-
-				AudioInputStream is = AudioSystem.getAudioInputStream(f);
-				AudioFormat format = is.getFormat();
-				DataLine.Info info = new DataLine.Info(Clip.class, format);
-				clip = (Clip) AudioSystem.getLine(info);
-				clip.open(is);
-				setVolume(config.masterVolume());
-				clip.start();
-			}
-			catch (LineUnavailableException | UnsupportedAudioFileException | IOException e)
-			{
-				log.warn("Sound file error", e);
-				lastClipTime = CLIP_TIME_UNLOADED;
-			}
-		}
+		soundManager.playSound(f);
 	}
 
 	// sets volume using dB to linear conversion
