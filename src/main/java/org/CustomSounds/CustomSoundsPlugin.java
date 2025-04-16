@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
@@ -58,6 +59,8 @@ public class CustomSoundsPlugin extends Plugin
 	private ItemManager itemManager;
 
 	private static final String COLLOG = "New item added to your collection log";
+
+	private static final Pattern COLLECTION_LOG_ITEM_REGEX = Pattern.compile("New item added to your collection log:.*");
 
 
 	private static final ImmutableList<String> PET_MESSAGES = ImmutableList.of("You have a funny feeling like you're being followed",
@@ -308,7 +311,7 @@ public class CustomSoundsPlugin extends Plugin
 		{
 			return;
 		}
-		if (config.announceCollectionLog() && COLLOG.contains(chatMessage)){
+		if (config.announceCollectionLog() && COLLECTION_LOG_ITEM_REGEX.matcher(event.getMessage()).matches()){
 			playSound(COLLECTIONLOG_SOUND_FILE);
 		}
 		else if (config.petSound() && PET_MESSAGES.stream().anyMatch(chatMessage::contains))
