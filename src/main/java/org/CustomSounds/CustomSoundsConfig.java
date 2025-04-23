@@ -41,7 +41,7 @@ public interface CustomSoundsConfig extends Config
 	)
 	default boolean highlightSound()
 	{
-		return true;
+		return false;
 	}
 
 	@ConfigItem(
@@ -61,7 +61,7 @@ public interface CustomSoundsConfig extends Config
 			section = "hitsplatToggleSection",
 			position = 3
 	)
-	default boolean maxHitBoolean() {return true;}
+	default boolean maxHitBoolean() {return false;}
 
 	@ConfigItem(
 			keyName = "announceDeath",

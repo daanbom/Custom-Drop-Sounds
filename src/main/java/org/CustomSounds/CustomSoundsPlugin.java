@@ -1,16 +1,17 @@
 package org.CustomSounds;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provides;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
 import net.runelite.api.events.ActorDeath;
@@ -30,6 +31,7 @@ import net.runelite.client.plugins.grounditems.GroundItemsPlugin;
 import net.runelite.client.plugins.loottracker.LootReceived;
 import net.runelite.client.util.Text;
 
+import net.runelite.client.audio.AudioPlayer;
 
 @Slf4j
 @PluginDescriptor(
@@ -42,6 +44,9 @@ public class CustomSoundsPlugin extends Plugin
 {
 	@Inject
 	private CustomSoundsConfig config;
+
+	@Inject
+	private AudioPlayer audioPlayer;
 
 	@Provides
 	CustomSoundsConfig provideConfig(ConfigManager configManager)
@@ -58,7 +63,6 @@ public class CustomSoundsPlugin extends Plugin
 	@Inject
 	private ItemManager itemManager;
 
-	private static final String COLLOG = "New item added to your collection log";
 
 	private static final Pattern COLLECTION_LOG_ITEM_REGEX = Pattern.compile("New item added to your collection log:.*");
 
@@ -119,15 +123,11 @@ public class CustomSoundsPlugin extends Plugin
 	{
 		initSoundFiles();
 		updateHighlightedItemsList();
-		soundManager = new SoundManager(config);
 	}
 
 	@Override
 	protected void shutDown()
 	{
-		if (soundManager != null) {
-			soundManager.shutdown();
-		}
 		highlightedItemsList = null;
 	}
 
@@ -226,7 +226,33 @@ public class CustomSoundsPlugin extends Plugin
 
 	private void playSound(File f)
 	{
-		soundManager.playSound(f);
+		if (!f.exists()) {
+			log.warn("Sound file does not exist: {}", f.getPath());
+			return;
+		}
+		try {
+			// Convert percentage (0-100) to gain in dB
+			float gainInDecibels = convertToDecibels(config.masterVolume());
+
+			// Call the instance method
+			audioPlayer.play(f, gainInDecibels);
+		} catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
+			log.warn("Error playing sound {}: {}", f.getName(), e.getMessage());
+		}
+
+	}
+
+	private float convertToDecibels(int volumePercentage) {
+		// Avoid log(0)
+		if (volumePercentage <= 0) {
+			return -80.0f; // Very quiet
+		}
+
+		// Convert percentage to a ratio (0.0 to 1.0)
+		float ratio = volumePercentage / 100.0f;
+
+		// Convert ratio to decibels
+		return 20f * (float) Math.log10(ratio);
 	}
 
 	// sets volume using dB to linear conversion
