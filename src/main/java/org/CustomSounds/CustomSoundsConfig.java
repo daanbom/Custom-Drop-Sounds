@@ -9,7 +9,7 @@ public interface CustomSoundsConfig extends Config
 	@ConfigSection(
 			name = "Value drops",
 			description = "All the settings for drops",
-			position = 7
+			position = 8
 
 	)
 	String valueDrops = "valueDrops";
@@ -17,10 +17,18 @@ public interface CustomSoundsConfig extends Config
 	@ConfigSection(
 			name = "Clue drops",
 			description = "All the settings for drops",
-			position = 6
+			position = 7
 
 	)
 	String clueDrops = "clueDrops";
+
+	@ConfigSection(
+			name = "Spec weapon sounds",
+			description = "All the settings for Spec weapons",
+			position = 9
+
+	)
+	String specWeapon = "specWeapon";
 	@Range(max=100)
 	@ConfigItem(
 			keyName = "masterVolume",
@@ -52,7 +60,7 @@ public interface CustomSoundsConfig extends Config
 	)
 	default boolean petSound()
 	{
-		return true;
+		return false;
 	}
 		@ConfigItem(
 			keyName = "maxHitBoolean",
@@ -70,7 +78,7 @@ public interface CustomSoundsConfig extends Config
 			position = 4
 	)
 	default boolean announceDeath() {
-		return true;
+		return false;
 	}
 
 	@ConfigItem(
@@ -80,7 +88,17 @@ public interface CustomSoundsConfig extends Config
 			position = 5
 	)
 	default boolean announceCollectionLog() {
-		return true;
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "teleports",
+			name = "Teleport Sounds",
+			description = "Configure whether or not you want to use a custom sound for teleports (house tabs, capes, scrolls)",
+			position = 6
+	)
+	default boolean teleports() {
+		return false;
 	}
 
 	@ConfigItem(
@@ -90,6 +108,7 @@ public interface CustomSoundsConfig extends Config
 			position = 0,
 			section = clueDrops
 	)
+
 	default boolean beginnerClueSound()
 	{
 		return true;
@@ -325,6 +344,113 @@ public interface CustomSoundsConfig extends Config
 		return 1000000000;
 	}
 
+	@ConfigItem(
+			keyName = "zaryteCrossBow",
+			name = "Zaryte CrossBow Spec",
+			description = "Configure whether or not you want to use a custom Zaryte CrossBow spec sound" ,
+			position = 0,
+			section = specWeapon
+	)
+	default boolean zaryteCrossBow() {
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "elderMaul",
+			name = "Elder Maul Spec",
+			description = "Configure whether or not you want to use a custom Elder Maul spec sound" ,
+			position = 1,
+			section = specWeapon
+	)
+	default boolean elderMaul() {
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "dragonClaws",
+			name = "Dragon Claw Spec",
+			description = "Configure whether or not you want to use a custom Dragon Claw spec sound" ,
+			position = 2,
+			section = specWeapon
+	)
+	default boolean dragonClaws() {
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "burnClaw",
+			name = "Burn Claw Spec",
+			description = "Configure whether or not you want to use a custom Burn Claw spec sound",
+			position = 3,
+			section = specWeapon
+	)
+	default boolean burnClaw() {
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "horn",
+			name = "Horn Spec",
+			description = "Configure whether or not you want to use a custom Horn spec sound",
+			position = 4,
+			section = specWeapon
+	)
+	default boolean horn() {
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "voidwaker",
+			name = "Voidwaker Spec",
+			description = "Configure whether or not you want to use a custom Voidwaker spec sound",
+			position = 5,
+			section = specWeapon
+	)
+	default boolean voidwaker() {
+		return false;
+	}
+	@ConfigItem(
+			keyName = "blowpipe",
+			name = "Blowpipe Spec",
+			description = "Configure whether or not you want to use a custom Blowpipe spec sound",
+			position = 6,
+			section = specWeapon
+	)
+	default boolean blowpipe() {
+		return false;
+	}
+	@ConfigItem(
+			keyName = "keris",
+			name = "Keris Spec",
+			description = "Configure whether or not you want to use a custom Keris spec sound",
+			position = 7,
+			section = specWeapon
+	)
+	default boolean keris() {
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "bgs",
+			name = "BGS Spec",
+			description = "Configure whether or not you want to use a custom BGS spec sound",
+			position = 8,
+			section = specWeapon
+	)
+	default boolean bgs() {
+		return false;
+	}
+
+	@ConfigItem(
+			keyName = "crystalHally",
+			name = "Crystal Halberd Spec",
+			description = "Configure whether or not you want to use a custom Crystal Halberd spec sound",
+			position = 9,
+			section = specWeapon
+	)
+	default boolean crystalHally() {
+		return false;
+	}
 
 
 }
