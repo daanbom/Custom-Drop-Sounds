@@ -17,6 +17,8 @@ You can also use custom pet sounds.
 
 There are also custom sounds for collectionlog, death and max hits.
 
+Besides that there are custom sounds for teleporting and spec weapons.
+
 Master volume is the global volume of the sound effects (0-100%)
 
 
