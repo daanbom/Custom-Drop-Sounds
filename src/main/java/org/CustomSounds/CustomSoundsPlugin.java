@@ -296,23 +296,23 @@ public class CustomSoundsPlugin extends Plugin
 		final int haPrice = itemComposition.getHaPrice() * quantity;
 		final int value = getValueByMode(gePrice, haPrice);
 
-		if (config.beginnerClueSound() && name.contains("clue scroll (beginner)")){
+		if (config.beginnerClueSound() && (name.contains("scroll box (beginner)") || name.contains("clue scroll (beginner)"))){
 			playSound(BEGINNER_CLUE_SOUND_FILE);
 		}
-		if (config.easyClueSound() && name.contains("clue scroll (easy)")){
+		if (config.easyClueSound() && (name.contains("scroll box (easy)") || name.contains("clue scroll (easy)"))){
 			playSound(EASY_CLUE_SOUND_FILE);
 		}
-		if (config.mediumClueSound() && name.contains("clue scroll (medium)")){
+		if (config.mediumClueSound() && (name.contains("scroll box (medium)") || name.contains("clue scroll (medium)"))){
 			playSound(MEDIUM_CLUE_SOUND_FILE);
 		}
-		if (config.hardClueSound() && name.contains("clue scroll (hard)")){
+		if (config.hardClueSound() && (name.contains("scroll box (hard)") || name.contains("clue scroll (hard)"))){
 			playSound(HARD_CLUE_SOUND_FILE);
 		}
 
-		if (config.eliteClueSound() && name.contains("clue scroll (elite)")){
+		if (config.eliteClueSound() && (name.contains("scroll box (elite)") || name.contains("clue scroll (elite)"))){
 			playSound(ELITE_CLUE_SOUND_FILE);
 		}
-		if (config.masterClueSound() && name.contains("clue scroll (master)")){
+		if (config.masterClueSound() && (name.contains("scroll box (master)") || name.contains("clue scroll (master)"))){
 			playSound(MASTER_CLUE_SOUND_FILE);
 		}
 
@@ -454,6 +454,7 @@ public class CustomSoundsPlugin extends Plugin
 			highlightedItemsList = Text.fromCSV(groundItemsConfig.getHighlightItems().toLowerCase());
 		}
 	}
+
 	@Subscribe
 	public void onChatMessage(ChatMessage event) {
 		String chatMessage = event.getMessage();
