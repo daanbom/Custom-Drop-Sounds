@@ -21,10 +21,6 @@ import net.runelite.client.plugins.loottracker.LootReceived;
 import net.runelite.client.util.Text;
 
 import javax.inject.Inject;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
 import java.util.HashMap;
 import java.util.List;
@@ -139,8 +135,6 @@ public class CustomSoundsPlugin extends Plugin
 
 
 	private List<String> highlightedItemsList = new CopyOnWriteArrayList<>();
-
-	private Clip clip = null;
 
 	@Override
 	protected void startUp()
@@ -352,7 +346,7 @@ public class CustomSoundsPlugin extends Plugin
 
 			// Call the instance method
 			audioPlayer.play(f, gainInDecibels);
-		} catch (IOException | UnsupportedAudioFileException | LineUnavailableException e) {
+		} catch (Exception e) {
 			log.warn("Error playing sound {}: {}", f.getName(), e.getMessage());
 		}
 
@@ -380,15 +374,6 @@ public class CustomSoundsPlugin extends Plugin
 
 		// Convert ratio to decibels
 		return 20f * (float) Math.log10(ratio);
-	}
-
-	// sets volume using dB to linear conversion
-	private void setVolume(int volume)
-	{
-		float vol = volume/100.0f;
-		vol *= config.masterVolume()/100.0f;
-		FloatControl gainControl = (FloatControl)clip.getControl(FloatControl.Type.MASTER_GAIN);
-		gainControl.setValue(20.0f * (float) Math.log10(vol));
 	}
 
 	// initialize sound files if they haven't been created yet
