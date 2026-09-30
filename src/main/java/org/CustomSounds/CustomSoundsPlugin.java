@@ -17,6 +17,7 @@ import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.grounditems.GroundItemsConfig;
 import net.runelite.client.plugins.grounditems.GroundItemsPlugin;
+import net.runelite.client.plugins.grounditems.config.ValueCalculationMode;
 import net.runelite.client.plugins.loottracker.LootReceived;
 import net.runelite.client.util.Text;
 
@@ -286,9 +287,9 @@ public class CustomSoundsPlugin extends Plugin
 			return;
 		}
 
-		final int gePrice = itemManager.getItemPrice(id) * quantity;
-		final int haPrice = itemComposition.getHaPrice() * quantity;
-		final int value = getValueByMode(gePrice, haPrice);
+		final long gePrice = itemManager.getItemPrice(id) * (long) quantity;
+		final long haPrice = itemComposition.getHaPrice() * (long) quantity;
+		final long value = getValueByMode(gePrice, haPrice, groundItemsConfig.valueCalculationMode());
 
 		if (config.beginnerClueSound() && (name.contains("scroll box (beginner)") || name.contains("clue scroll (beginner)"))){
 			playSound(BEGINNER_CLUE_SOUND_FILE);
@@ -407,14 +408,15 @@ public class CustomSoundsPlugin extends Plugin
 
 	}
 
-	private int getValueByMode(int gePrice, int haPrice)
+	static long getValueByMode(long gePrice, long haPrice, ValueCalculationMode valueCalculationMode)
 	{
-		switch (groundItemsConfig.valueCalculationMode())
+		switch (valueCalculationMode)
 		{
 			case GE:
 				return gePrice;
 			case HA:
 				return haPrice;
+			case HIGHEST:
 			default: // Highest
 				return Math.max(gePrice, haPrice);
 		}
