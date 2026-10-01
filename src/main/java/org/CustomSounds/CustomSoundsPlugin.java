@@ -13,10 +13,8 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.ItemStack;
 import net.runelite.client.plugins.Plugin;
-import net.runelite.client.plugins.PluginDependency;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.grounditems.GroundItemsConfig;
-import net.runelite.client.plugins.grounditems.GroundItemsPlugin;
 import net.runelite.client.plugins.grounditems.config.ValueCalculationMode;
 import net.runelite.client.plugins.loottracker.LootReceived;
 import net.runelite.client.util.Text;
@@ -37,7 +35,6 @@ import java.util.regex.Pattern;
 		description = "Play custom sound effects for item drops, pets, hits and more",
 		tags = {"sound", "effect", "item", "drop", "hit", "combat"}
 )
-@PluginDependency(GroundItemsPlugin.class)
 public class CustomSoundsPlugin extends Plugin
 {
 	@Inject
@@ -51,6 +48,12 @@ public class CustomSoundsPlugin extends Plugin
 	CustomSoundsConfig provideConfig(ConfigManager configManager)
 	{
 		return configManager.getConfig(CustomSoundsConfig.class);
+	}
+
+	@Provides
+	GroundItemsConfig provideGroundItemsConfig(ConfigManager configManager)
+	{
+		return configManager.getConfig(GroundItemsConfig.class);
 	}
 
 	@Inject
