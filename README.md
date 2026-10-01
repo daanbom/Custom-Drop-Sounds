@@ -36,5 +36,5 @@ you would replace `pet_sound.wav` with a different .wav file *of the same name*
 ## Future Development
 Currently not working on anymore, message me if you want something added.
 
-If you find any bugs please let me know either through GitHub or by messaging me on discord at el diab#9825
+If you find any bugs please let me know either through GitHub or by messaging me on discord at eldiab
 
